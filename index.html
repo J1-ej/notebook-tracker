@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0A0A" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tracker" />
+  <link rel="manifest" href="./manifest.json" />
+  <title>Notebook Tracker // Clean Habit & Metric Journal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <div class="app-shell">
+    <!-- STICKY TOP HEADER -->
+    <header class="top-header">
+      <div class="header-top-row">
+        <div class="brand-group">
+          <span class="brand-title mono">TRACKER</span>
+          <span class="brand-badge mono">PAPER SYNC</span>
+        </div>
+
+        <!-- Month Navigation -->
+        <div class="month-selector" role="group" aria-label="Month selection">
+          <button type="button" class="icon-btn" id="prevMonthBtn" aria-label="Previous month">‹</button>
+          <button type="button" class="month-title-btn mono" id="currentMonthBtn" title="Reset to current month">
+            <span id="monthLabelText">OCTOBER 2026</span>
+          </button>
+          <button type="button" class="icon-btn" id="nextMonthBtn" aria-label="Next month">›</button>
+        </div>
+
+        <div class="header-actions-group">
+          <button type="button" class="action-pill-btn mono" id="openAddTrackerTopBtn" title="Add a new custom tracker">
+            <span>+ Add</span>
+          </button>
+          <button type="button" class="action-pill-btn mono" id="openBackupModalBtn" title="JSON backup & data">
+            <span>JSON</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Segmented Mode Tabs -->
+      <nav class="mode-tabs-wrap" role="tablist" aria-label="Main view mode">
+        <button type="button" role="tab" aria-selected="true" class="mode-tab active" data-mode="dock" id="tabDockBtn">
+          <span>Daily Entry</span>
+        </button>
+        <button type="button" role="tab" aria-selected="false" class="mode-tab" data-mode="spread" id="tabSpreadBtn">
+          <span>Notebook Spread</span>
+          <span class="counter-badge mono" id="headerUnsyncedBadge">0</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 1: DAILY ENTRY (SIMPLE & DIRECT)                             -->
+    <!-- ================================================================= -->
+    <main id="viewDock" class="view-panel active">
+      <!-- Horizontal 1..31 Day Selector -->
+      <section class="day-strip-wrap" aria-label="Month days">
+        <div class="day-strip" id="dayRibbon"></div>
+      </section>
+
+      <!-- Selected Day Subheader -->
+      <section class="day-header-bar">
+        <div class="day-info-cluster">
+          <button type="button" class="arrow-btn" id="prevDayBtn" aria-label="Previous day">‹</button>
+          <div>
+            <div class="day-title-row">
+              <span class="day-large-num mono" id="dockDayNumber">30</span>
+              <span class="mon-pill mono hidden" id="dockMondayBadge">M</span>
+              <span class="day-full-name" id="dockDayTitle">October · Friday</span>
+            </div>
+            <div class="day-subtitle mono" id="dockDayStatus">No entries for this day</div>
+          </div>
+          <button type="button" class="arrow-btn" id="nextDayBtn" aria-label="Next day">›</button>
+        </div>
+
+        <button type="button" class="paper-sync-btn mono" id="dockPaperSyncBtn" aria-pressed="false">
+          <span class="check-box-icon" id="dockSyncBox">✓</span>
+          <span id="dockSyncLabel">Synced to Paper</span>
+        </button>
+      </section>
+
+      <!-- Clean 2-Column Content Layout -->
+      <div class="dock-layout">
+        <!-- LEFT COLUMN: LINE METRICS (DEFAULT + CUSTOM) -->
+        <section class="dock-column">
+          <div class="column-header">
+            <h2 class="column-title mono">LEFT PAGE // LINE METRICS</h2>
+            <button type="button" class="add-inline-btn mono" id="openAddMetricBtn">+ Add Time Metric</button>
+          </div>
+
+          <!-- 1. SLEEP -->
+          <article class="clean-card" id="cardSleep">
+            <div class="card-top-row">
+              <div>
+                <h3 class="card-title">1. Sleep</h3>
+                <p class="card-caption">Any 24h schedule (e.g. 04:00 to 15:00)</p>
+              </div>
+              <div class="card-right-group">
+                <span class="value-badge mono" id="sleepDurationBadge">—</span>
+                <button type="button" class="clear-btn mono" id="clearSleepBtn" title="Clear sleep entry">✕</button>
+              </div>
+            </div>
+
+            <div class="sleep-inputs-row">
+              <div class="clean-input-box">
+                <label for="bedtimeInput" class="input-caption mono">FELL ASLEEP</label>
+                <input type="time" id="bedtimeInput" class="clean-time-input mono" value="23:30" />
+                <div class="quick-step-row">
+                  <button type="button" class="step-btn mono" data-sleep-step="bed" data-delta="-30">-30m</button>
+                  <button type="button" class="step-btn mono" data-sleep-step="bed" data-delta="-15">-15m</button>
+                  <button type="button" class="step-btn mono" data-sleep-step="bed" data-delta="15">+15m</button>
+                  <button type="button" class="step-btn mono" data-sleep-step="bed" data-delta="30">+30m</button>
+                </div>
+              </div>
+
+              <div class="clean-input-box">
+                <label for="waketimeInput" class="input-caption mono">WOKE UP</label>
+                <input type="time" id="waketimeInput" class="clean-time-input mono" value="07:30" />
+                <div class="quick-step-row">
+                  <button type="button" class="step-btn mono" data-sleep-step="wake" data-delta="-30">-30m</button>
+                  <button type="button" class="step-btn mono" data-sleep-step="wake" data-delta="-15">-15m</button>
+                  <button type="button" class="step-btn mono" data-sleep-step="wake" data-delta="15">+15m</button>
+                  <button type="button" class="step-btn mono" data-sleep-step="wake" data-delta="30">+30m</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="sleep-summary-bar mono" id="sleepSummaryBar">
+              <span>Duration: <strong id="sleepSummaryDur">—</strong></span>
+              <span id="sleepSummaryStamp">Bedtime / Wakeup</span>
+            </div>
+          </article>
+
+          <!-- 2. SCREEN TIME -->
+          <article class="clean-card" id="cardScreen">
+            <div class="card-top-row">
+              <div>
+                <h3 class="card-title">2. Screen Time</h3>
+                <p class="card-caption">Phone screen usage (hours & minutes)</p>
+              </div>
+              <div class="card-right-group">
+                <span class="value-badge mono" id="screenBadge">—</span>
+                <button type="button" class="clear-btn mono" id="clearScreenBtn" title="Clear screen time">✕</button>
+              </div>
+            </div>
+
+            <div class="range-controls-wrap">
+              <div class="slider-row">
+                <button type="button" class="step-btn mono" data-dur-step="screenTime" data-delta="-15">-15m</button>
+                <input type="range" id="screenRange" class="clean-range" min="0" max="600" step="5" value="0" />
+                <button type="button" class="step-btn mono" data-dur-step="screenTime" data-delta="15">+15m</button>
+              </div>
+              <div class="range-ticks mono">
+                <span>0h</span><span>2h</span><span>4h</span><span>6h</span><span>8h+</span>
+              </div>
+              <div class="preset-pills-row">
+                <button type="button" class="preset-pill mono" data-screen-preset="60">1h</button>
+                <button type="button" class="preset-pill mono" data-screen-preset="120">2h</button>
+                <button type="button" class="preset-pill mono" data-screen-preset="180">3h</button>
+                <button type="button" class="preset-pill mono" data-screen-preset="240">4h</button>
+                <button type="button" class="preset-pill mono" data-screen-preset="300">5h</button>
+                <button type="button" class="preset-pill mono" data-screen-preset="360">6h</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- 3. STUDY TIME -->
+          <article class="clean-card" id="cardStudy">
+            <div class="card-top-row">
+              <div>
+                <h3 class="card-title">3. Study Time</h3>
+                <p class="card-caption">Focused learning, SAT & coding prep</p>
+              </div>
+              <div class="card-right-group">
+                <span class="value-badge mono" id="studyBadge">—</span>
+                <button type="button" class="clear-btn mono" id="clearStudyBtn" title="Clear study time">✕</button>
+              </div>
+            </div>
+
+            <div class="range-controls-wrap">
+              <div class="slider-row">
+                <button type="button" class="step-btn mono" data-dur-step="studyTime" data-delta="-15">-15m</button>
+                <input type="range" id="studyRange" class="clean-range" min="0" max="480" step="5" value="0" />
+                <button type="button" class="step-btn mono" data-dur-step="studyTime" data-delta="15">+15m</button>
+              </div>
+              <div class="range-ticks mono">
+                <span>0h</span><span>2h</span><span>4h</span><span>6h</span><span>8h+</span>
+              </div>
+              <div class="preset-pills-row">
+                <button type="button" class="preset-pill mono" data-study-preset="45">45m</button>
+                <button type="button" class="preset-pill mono" data-study-preset="90">1h 30m</button>
+                <button type="button" class="preset-pill mono" data-study-preset="120">2h 00m</button>
+                <button type="button" class="preset-pill mono" data-study-preset="180">3h 00m</button>
+                <button type="button" class="preset-pill mono" data-study-preset="240">4h 00m</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- 4. MOOD TRACKER -->
+          <article class="clean-card" id="cardMood">
+            <div class="card-top-row">
+              <div>
+                <h3 class="card-title">4. Mood</h3>
+                <p class="card-caption">Emotional state (scale 1 to 5)</p>
+              </div>
+              <div class="card-right-group">
+                <span class="value-badge mono" id="moodBadge">—</span>
+                <button type="button" class="clear-btn mono" id="clearMoodBtn" title="Clear mood">✕</button>
+              </div>
+            </div>
+
+            <div class="mood-buttons-grid">
+              <button type="button" class="mood-btn" data-mood="1">
+                <span class="mood-num mono">1</span>
+                <span class="mood-text">Low</span>
+              </button>
+              <button type="button" class="mood-btn" data-mood="2">
+                <span class="mood-num mono">2</span>
+                <span class="mood-text">Down</span>
+              </button>
+              <button type="button" class="mood-btn" data-mood="3">
+                <span class="mood-num mono">3</span>
+                <span class="mood-text">Normal</span>
+              </button>
+              <button type="button" class="mood-btn" data-mood="4">
+                <span class="mood-num mono">4</span>
+                <span class="mood-text">Good</span>
+              </button>
+              <button type="button" class="mood-btn" data-mood="5">
+                <span class="mood-num mono">5</span>
+                <span class="mood-text">Great</span>
+              </button>
+            </div>
+          </article>
+
+          <!-- 5. WORKOUT TIME -->
+          <article class="clean-card" id="cardWorkout">
+            <div class="card-top-row">
+              <div>
+                <h3 class="card-title">5. Workout Time</h3>
+                <p class="card-caption">Sports, training & gym</p>
+              </div>
+              <div class="card-right-group">
+                <span class="value-badge mono" id="workoutBadge">—</span>
+                <button type="button" class="clear-btn mono" id="clearWorkoutBtn" title="Clear workout time">✕</button>
+              </div>
+            </div>
+
+            <div class="range-controls-wrap">
+              <div class="slider-row">
+                <button type="button" class="step-btn mono" data-dur-step="workoutTime" data-delta="-15">-15m</button>
+                <input type="range" id="workoutRange" class="clean-range" min="0" max="240" step="5" value="0" />
+                <button type="button" class="step-btn mono" data-dur-step="workoutTime" data-delta="15">+15m</button>
+              </div>
+              <div class="range-ticks mono">
+                <span>0h</span><span>1h</span><span>2h</span><span>3h</span><span>4h</span>
+              </div>
+              <div class="preset-pills-row">
+                <button type="button" class="preset-pill mono" data-workout-preset="0">Rest</button>
+                <button type="button" class="preset-pill mono" data-workout-preset="30">30m</button>
+                <button type="button" class="preset-pill mono" data-workout-preset="45">45m</button>
+                <button type="button" class="preset-pill mono" data-workout-preset="60">1h 00m</button>
+                <button type="button" class="preset-pill mono" data-workout-preset="90">1h 30m</button>
+              </div>
+            </div>
+          </article>
+
+          <!-- CONTAINER FOR CUSTOM TIME METRICS -->
+          <div id="customMetricsContainer"></div>
+        </section>
+
+        <!-- RIGHT COLUMN: HABITS GRID (DEFAULT + CUSTOM + COL 13) -->
+        <section class="dock-column">
+          <div class="column-header">
+            <h2 class="column-title mono">RIGHT PAGE // HABITS GRID</h2>
+            <div class="column-header-right">
+              <span class="column-meta mono" id="habitsDoneFraction">0 / 12 completed</span>
+              <button type="button" class="add-inline-btn mono" id="openAddHabitBtn">+ Add Habit</button>
+            </div>
+          </div>
+
+          <!-- All Habits Grid (Default 12 + Custom Habits) -->
+          <div class="habits-list-grid" id="dockHabitsGrid"></div>
+
+          <!-- COLUMN 13: ABSTINENCE / ANTI-HABIT -->
+          <article class="abstinence-box" id="abstinenceCard">
+            <div class="abstinence-header">
+              <div>
+                <span class="col13-tag mono">COLUMN 13 // ANTI-HABIT</span>
+                <h3 class="abstinence-title">Abstinence Control</h3>
+                <p class="abstinence-desc">Goal: keep the box clean (empty) in paper journal</p>
+              </div>
+              <div class="streak-pill mono" id="cleanStreakBadge">0 DAYS CLEAN</div>
+            </div>
+
+            <div class="abstinence-toggle-row">
+              <button type="button" class="ab-state-btn clean-state active" id="btnCleanDay">
+                <span class="ab-box-preview empty-box"></span>
+                <div class="ab-label-col">
+                  <strong>Clean Day</strong>
+                  <span class="mono">Keep empty box · Streak +1</span>
+                </div>
+              </button>
+
+              <button type="button" class="ab-state-btn relapse-state" id="btnRelapseDay">
+                <span class="ab-box-preview relapse-box">✕</span>
+                <div class="ab-label-col">
+                  <strong>Relapse</strong>
+                  <span class="mono">Marked cell in grid</span>
+                </div>
+              </button>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 2: NOTEBOOK SPREAD (ACCURATE DIGITAL COPY OF PAPER SPREAD)   -->
+    <!-- ================================================================= -->
+    <main id="viewSpread" class="view-panel">
+      <!-- Toolbar -->
+      <section class="spread-bar">
+        <label class="toggle-control-label" for="highlightUnsyncedToggle">
+          <input type="checkbox" id="highlightUnsyncedToggle" class="sr-only" />
+          <span class="switch-pill">
+            <span class="switch-dot"></span>
+          </span>
+          <span class="toggle-label-text">
+            <strong>Highlight unsynced days</strong>
+            <small class="mono">Dims transcribed rows so new travel entries stand out</small>
+          </span>
+        </label>
+
+        <div class="spread-actions-cluster">
+          <div class="mobile-subtabs" role="group" aria-label="Page view switcher">
+            <button type="button" class="subtab-btn active" data-spread-page="both">Both Pages</button>
+            <button type="button" class="subtab-btn" data-spread-page="left">Left (Graphs)</button>
+            <button type="button" class="subtab-btn" data-spread-page="right">Right (Habits)</button>
+          </div>
+
+          <button type="button" class="ghost-btn mono" id="markAllSyncedBtn" title="Mark all entered days as transcribed to paper">
+            Mark all synced
+          </button>
+        </div>
+      </section>
+
+      <!-- Ledger Spread Container -->
+      <div class="notebook-viewport" id="notebookViewport">
+        <div class="notebook-spread" id="notebookSpread" data-page-mode="both">
+
+          <!-- LEFT PAGE: LINE CHARTS -->
+          <section class="ledger-page left-page" id="leftNotebookPage">
+            <div class="page-top-label mono">
+              <span>PAGE L // LINE METRICS</span>
+              <span id="leftPageMonthCaption">OCTOBER 2026</span>
+            </div>
+
+            <!-- Header Row for Metric Columns (dynamically set in app.js) -->
+            <div class="left-columns-header" id="leftColumnsHeader"></div>
+
+            <!-- SVG Continuous Lines Stage -->
+            <div class="left-graph-stage" id="leftMetricsStage"></div>
+
+            <!-- Monthly Averages Footer -->
+            <div class="left-footer-row mono" id="leftMetricsFooter"></div>
+          </section>
+
+          <!-- CENTER SPINE: DAYS 1..31 + MONDAY 'M' + SYNC STATUS -->
+          <section class="ledger-spine" id="notebookSpine">
+            <div class="spine-top-label mono">DAY</div>
+            <div class="spine-head-row mono">
+              <span title="Synced to paper">✓</span>
+              <span>№</span>
+              <span title="Monday">M</span>
+            </div>
+            <div class="spine-rows-box" id="spineRowsContainer"></div>
+            <div class="spine-foot-row mono">Σ</div>
+          </section>
+
+          <!-- RIGHT PAGE: HABITS GRID -->
+          <section class="ledger-page right-page" id="rightNotebookPage">
+            <div class="page-top-label mono">
+              <span>PAGE R // HABITS GRID</span>
+              <span id="rightPageStreakCaption">0 DAYS CLEAN</span>
+            </div>
+
+            <!-- Vertical Headers for Habit Columns (dynamically set in app.js) -->
+            <div class="right-columns-header" id="rightHabitsHeader"></div>
+
+            <!-- 31 Rows of Cells -->
+            <div class="right-rows-box" id="rightHabitsRows"></div>
+
+            <!-- Totals Footer -->
+            <div class="right-footer-row mono" id="rightHabitsFooter"></div>
+          </section>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-nav-bar" aria-label="Mobile navigation">
+      <button type="button" class="mobile-nav-item active" id="bottomNavDock">
+        <span class="nav-icon">▪</span>
+        <span>Daily Entry</span>
+      </button>
+      <button type="button" class="mobile-nav-item" id="bottomNavSpreadLeft">
+        <span class="nav-icon">∿</span>
+        <span>Graphs (Left)</span>
+      </button>
+      <button type="button" class="mobile-nav-item" id="bottomNavSpreadRight">
+        <span class="nav-icon">⊞</span>
+        <span>Habits (Right)</span>
+      </button>
+      <button type="button" class="mobile-nav-item" id="bottomNavSpreadFull">
+        <span class="nav-icon">📖</span>
+        <span>Spread</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- MODAL: ADD CUSTOM TRACKER (DURATION OR YES/NO HABIT)              -->
+  <!-- ================================================================= -->
+  <div class="modal-overlay hidden" id="addTrackerModal" role="dialog" aria-modal="true" aria-labelledby="addTrackerModalTitle">
+    <div class="modal-box">
+      <div class="modal-top">
+        <h2 class="modal-heading mono" id="addTrackerModalTitle">Add New Tracker</h2>
+        <button type="button" class="close-x-btn" id="closeAddTrackerModalBtn">✕</button>
+      </div>
+
+      <form id="addTrackerForm" class="modal-content">
+        <div class="form-group">
+          <label class="form-label mono">Tracker Type</label>
+          <div class="type-segmented-wrap" role="group">
+            <button type="button" class="type-segment-btn active" id="typeTimeBtn" data-type="time">
+              <strong>Duration / Time</strong>
+              <small class="mono">Line chart on left page (e.g. Meditation)</small>
+            </button>
+            <button type="button" class="type-segment-btn" id="typeHabitBtn" data-type="habit">
+              <strong>Yes / No Habit</strong>
+              <small class="mono">Grid box on right page (e.g. Cold Shower)</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="trackerNameInput" class="form-label mono">Tracker Name</label>
+          <input type="text" id="trackerNameInput" class="text-input mono" placeholder="e.g. Meditation, Piano, Cold Shower" required maxlength="24" autocomplete="off" />
+        </div>
+
+        <div class="form-group" id="timeScaleGroup">
+          <label for="trackerScaleInput" class="form-label mono">Max Scale (Hours on Graph)</label>
+          <select id="trackerScaleInput" class="select-input mono">
+            <option value="1">1 hour (0h — 1h)</option>
+            <option value="2" selected>2 hours (0h — 2h)</option>
+            <option value="3">3 hours (0h — 3h)</option>
+            <option value="4">4 hours (0h — 4h)</option>
+            <option value="6">6 hours (0h — 6h)</option>
+            <option value="8">8 hours (0h — 8h)</option>
+          </select>
+        </div>
+
+        <div class="modal-actions-row">
+          <button type="button" class="modal-btn" id="cancelAddTrackerBtn">Cancel</button>
+          <button type="submit" class="modal-btn solid" id="confirmAddTrackerBtn">Add Tracker</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- BACKUP / JSON MODAL -->
+  <div class="modal-overlay hidden" id="backupModal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <div class="modal-top">
+        <h2 class="modal-heading mono">Backup & Data (JSON)</h2>
+        <button type="button" class="close-x-btn" id="closeBackupModalBtn">✕</button>
+      </div>
+
+      <div class="modal-content">
+        <p class="modal-help-text">
+          Data is saved directly in your browser's local storage. You can export or import JSON anytime.
+        </p>
+
+        <div class="modal-btns-row">
+          <button type="button" class="modal-btn solid" id="downloadJsonBtn">Download .JSON</button>
+          <label class="modal-btn" for="uploadJsonInput">
+            Import .JSON file
+            <input type="file" id="uploadJsonInput" accept=".json,application/json" class="sr-only" />
+          </label>
+        </div>
+
+        <div class="textarea-cluster">
+          <div class="textarea-label-row mono">
+            <span>JSON Clipboard:</span>
+            <div class="mini-cluster">
+              <button type="button" class="mini-btn mono" id="copyJsonTextBtn">Copy</button>
+              <button type="button" class="mini-btn mono" id="applyJsonTextBtn">Import Text</button>
+            </div>
+          </div>
+          <textarea id="jsonBackupTextarea" class="code-box mono" rows="6" spellcheck="false"></textarea>
+        </div>
+
+        <div class="modal-danger-row">
+          <button type="button" class="ghost-danger-btn mono" id="clearAllDataBtn">Clear All Data (Reset)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toastNotification" class="toast-pill mono hidden" role="status">Saved</div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
